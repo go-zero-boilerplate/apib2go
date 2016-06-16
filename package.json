@@ -1,0 +1,26 @@
+{
+  "name": "apib-to-go",
+  "version": "0.0.1",
+  "description": "Convert API Blueprint to golang routers",
+  "main": "index.js",
+  "files": [
+    "generators"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "golang",
+    "apiblueprint",
+    "apib",
+    "ast"
+  ],
+  "author": "Francois Hill <francoishill11@gmail.com>",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "change-case": "^3.0.0",
+    "protagonist": "^1.3.3",
+    "strip-json-comments": "^2.0.1"
+  }
+}

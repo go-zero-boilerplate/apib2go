@@ -31,6 +31,7 @@ var goLines = [
 ];
 
 var echoApiFiles = {};
+var allEchoRouterParamNames = [];
 var allEchoRouterLines = [];
 
 accumulator.apis.forEach(api => {
@@ -111,6 +112,7 @@ accumulator.apis.forEach(api => {
   let goEcho = new GoEchoV2Api(api);
   goEcho.generateApiCode();
 
+  allEchoRouterParamNames = allEchoRouterParamNames.concat(goEcho.echoRouterParamNames);
   allEchoRouterLines = allEchoRouterLines.concat(goEcho.echoRouterLines);
 
   let allLines = [
@@ -165,13 +167,13 @@ let allRouterLines = [
   '  "github.com/labstack/echo"',
   ')',
   '',
-  `type localLogger interface {`,
-  `  WithField(key string, value interface{}) localLogger`,
+  `type Logger interface {`,
+  `  WithField(key string, value interface{}) Logger`,
   `}`,
   '',
   `type controllerAdder struct {`,
-  `  logger localLogger`,
-  `  ctx    *Context`,
+  `  Logger Logger`,
+  `  Ctx    *Context`,
   `}`,
   '',
   `type cGet interface {`,
@@ -199,7 +201,7 @@ let allRouterLines = [
   `}`,
   ``,
   `func (c *controllerAdder) AddPaths(paths []string, e EchoOrGroup, ctrl controller, mware ...echo.MiddlewareFunc) {`,
-  `    baseCtrl := getNewBaseController(c.ctx, c.logger.WithField("controller", fmt.Sprintf("%T", c)))`,
+  `    baseCtrl := getNewBaseController(c.Ctx, c.Logger.WithField("controller", fmt.Sprintf("%T", c)))`,
   `    ctrl.SetBaseCtrl(baseCtrl)`,
   ``,
   `    cnt := 0`,
@@ -226,7 +228,9 @@ let allRouterLines = [
   `    }`,
   `  }`,
 ];
-allRouterLines.push(`func Router(ctrlAdder *controllerAdder, e EchoOrGroup) {`);
+
+allRouterLines.push(``);
+allRouterLines.push(`func RegisterRouters(ctrlAdder *controllerAdder, e EchoOrGroup, ${allEchoRouterParamNames.join(', ')}) {`);
 allRouterLines = allRouterLines.concat(allEchoRouterLines);
 allRouterLines.push(`}`);
 goFileWriter.writeGoFile('apib_router.go', allRouterLines.join("\n"));

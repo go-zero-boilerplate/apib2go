@@ -7,6 +7,7 @@ module.exports = class GoEchoV2Api {
   constructor(api) {
     this.api = api;
     this.goImports = [];
+    this.echoRouterParamNames = [];
     this.echoRouterLines = [];
     this.goLines = [];
   }
@@ -30,15 +31,17 @@ module.exports = class GoEchoV2Api {
     let resourceGoStructName = changeCase.camelCase(resource.title);
     let resourceGoInterfaceName = changeCase.pascalCase(resource.title);
 
+    this.echoRouterParamNames.push(`${resourceGoStructName}Resource ${resourceGoInterfaceName}Resource`);
+
     let echoUrlFmt = resource.href;
     echoUrlFmt = echoUrlFmt.replace(/\}/g, '');
     echoUrlFmt = echoUrlFmt.replace(/\{/g, ':');
-    this.echoRouterLines.push(`ctrlAdder.AddPaths([]string{"${echoUrlFmt}"}, e, &${resourceGoStructName}ResourceController{})`);    
+    this.echoRouterLines.push(`ctrlAdder.AddPaths([]string{"${echoUrlFmt}"}, e, New${resourceGoInterfaceName}ResourceController(${resourceGoStructName}Resource))`);    
 
     let firstLetterOfCtrlName = resourceGoInterfaceName.toLowerCase()[0];
 
     this.goLines.push(``);
-    this.goLines.push(`func New${resourceGoInterfaceName}Resource(resource ${resourceGoInterfaceName}Resource) *${resourceGoStructName}ResourceController {`);
+    this.goLines.push(`func New${resourceGoInterfaceName}ResourceController(resource ${resourceGoInterfaceName}Resource) *${resourceGoStructName}ResourceController {`);
     this.goLines.push(`  return &${resourceGoStructName}ResourceController {`);
     this.goLines.push(`    resource: resource,`);
     this.goLines.push(`  }`);
@@ -94,7 +97,7 @@ module.exports = class GoEchoV2Api {
   handleMemberGetFromQuery(member, methodCallParams) {
     let goVar = `${changeCase.camelCase(member.key)}`;
     let goVarStr = `${goVar}Str`;
-    this.goLines.push(`  ${goVarStr} := strings.TrimSpace(echoCtx.QueryParam("${member.key}"))`);
+    this.goLines.push(`  ${goVarStr} := strings.TrimSpace(echoCtx.Param("${member.key}"))`);
 
     let goType = helpers.goFieldTypeFromJsType(member.valueType);
     switch (goType) {

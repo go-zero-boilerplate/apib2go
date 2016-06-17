@@ -7,6 +7,7 @@ module.exports = class GoEchoV2Api {
   constructor(api) {
     this.api = api;
     this.goImports = [];
+    this.echoRouterLines = [];
     this.goLines = [];
   }
 
@@ -29,18 +30,27 @@ module.exports = class GoEchoV2Api {
     let resourceGoStructName = changeCase.camelCase(resource.title);
     let resourceGoInterfaceName = changeCase.pascalCase(resource.title);
 
+    let echoUrlFmt = resource.href;
+    echoUrlFmt = echoUrlFmt.replace(/\}/g, '');
+    echoUrlFmt = echoUrlFmt.replace(/\{/g, ':');
+    this.echoRouterLines.push(`ctrlAdder.AddPaths([]string{"${echoUrlFmt}"}, e, &${resourceGoStructName}ResourceController{})`);    
+
+    let firstLetterOfCtrlName = resourceGoInterfaceName.toLowerCase()[0];
+
     this.goLines.push(``);
-    this.goLines.push(`func New${resourceGoInterfaceName}Resource(resource ${resourceGoInterfaceName}Resource) *${resourceGoStructName}Resource {`);
-    this.goLines.push(`  return &${resourceGoStructName}Resource {`);
+    this.goLines.push(`func New${resourceGoInterfaceName}Resource(resource ${resourceGoInterfaceName}Resource) *${resourceGoStructName}ResourceController {`);
+    this.goLines.push(`  return &${resourceGoStructName}ResourceController {`);
     this.goLines.push(`    resource: resource,`);
     this.goLines.push(`  }`);
     this.goLines.push(`}`);
 
-
     this.goLines.push(`// ${resourceGoStructName}Resource from APIBlueprint Resource  '${resource.title}'`);
-    this.goLines.push(`type ${resourceGoStructName}Resource struct {`);
+    this.goLines.push(`type ${resourceGoStructName}ResourceController struct {`);
+    this.goLines.push(`  *BaseController`);
     this.goLines.push(`  resource ${resourceGoInterfaceName}Resource`);
     this.goLines.push(`}`);
+    this.goLines.push(``);
+    this.goLines.push(`func (${firstLetterOfCtrlName} *${resourceGoStructName}ResourceController) SetBaseCtrl(base *BaseController) { ${firstLetterOfCtrlName}.BaseController = base }`);
 
     resource.transitions.forEach(transition => {
       this.handleTransition(transition, resourceGoStructName, resource.members);
@@ -57,7 +67,7 @@ module.exports = class GoEchoV2Api {
 
     var firstLetter = resourceGoStructName[0];
     this.goLines.push(`// ${methodUpper} from APIBlueprint Transition '${transition.title}'`);
-    this.goLines.push(`func (${firstLetter} *${resourceGoStructName}Resource) ${methodUpper}(echoCtx echo.Context) error {`);
+    this.goLines.push(`func (${firstLetter} *${resourceGoStructName}ResourceController) ${methodUpper}(echoCtx echo.Context) error {`);
 
     let methodCallParams = [];
     resourceMembers.forEach(member => {

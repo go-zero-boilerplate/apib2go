@@ -51,16 +51,20 @@ accumulator.apis.forEach(api => {
           let tmpGoLines = helpers.getGoStructDefinitionFieldsFromMap(firstHttpTx.request.requestContent, true);
           goLines = goLines.concat(tmpGoLines);
           goLines.push(`}`);
+
+          let newMethodForInput = helpers.getGoNewMethodForStructFromMap(firstHttpTx.request.requestContent, `${transitionMethodName}Input`);
+          goLines = goLines.concat(newMethodForInput);
         }
 
         goLines.push(`// ${transitionMethodName} from APIBlueprint Transition '${transition.title}'`);
         goLines.push(`type ${transitionMethodName}Result struct {`);
-
         var messageBody = firstHttpTx.response.messageBody;
-        let tmpGoLines = helpers.getGoStructDefinitionFieldsFromMap(messageBody, true);
-        goLines = goLines.concat(tmpGoLines);
-
+        let tmpGoLines1 = helpers.getGoStructDefinitionFieldsFromMap(messageBody, true);
+        goLines = goLines.concat(tmpGoLines1);
         goLines.push(`}`);
+
+        let newMethodForResult = helpers.getGoNewMethodForStructFromMap(messageBody, `${transitionMethodName}Result`);
+        goLines = goLines.concat(newMethodForResult);
       });
 
       let resourceGoInterfaceName = changeCase.pascalCase(resource.title);
@@ -92,23 +96,32 @@ accumulator.apis.forEach(api => {
       goLines.push(`}`);
     });
 
+    /*
+    No use for this yet
     let groupGoTypeName = changeCase.pascalCase(group.title);
     goLines.push(`// ${groupGoTypeName}Group from APIBlueprint Group '${group.title}'`);
     goLines.push(`type ${groupGoTypeName}Group struct {`);
 
     group.resources.forEach(resource => {
       let resourceGoInterfaceName = changeCase.pascalCase(resource.title);
-      goLines.push(`  ${resourceGoInterfaceName} *${resourceGoInterfaceName}Resource`);
+      goLines.push(`  ${resourceGoInterfaceName} ${resourceGoInterfaceName}Resource`);
     });
 
-    goLines.push(`}`);
+    goLines.push(`}`);*/
   });
 
   let apiGoTypeName = changeCase.pascalCase(api.title);
+  /*
+  No use for this yet
   goLines.push(`// ${apiGoTypeName}API from APIBlueprint API '${api.title}'`);
   goLines.push(`type ${apiGoTypeName}API struct {`);
+  api.resourceGroups.forEach(group => {
+    let groupGoTypeName = changeCase.pascalCase(group.title);
+    goLines.push(`  ${groupGoTypeName} *${groupGoTypeName}Group`);
+  });
+  goLines.push(`}`)*/
 
-  let apiFileName = 'api_' + changeCase.snakeCase(apiGoTypeName) + ".go";
+  let apiFileName = 'api_echo_' + changeCase.snakeCase(apiGoTypeName) + ".go";
   let goEcho = new GoEchoV2Api(api);
   goEcho.generateApiCode();
 
@@ -123,12 +136,6 @@ accumulator.apis.forEach(api => {
   allLines.push(')');
   allLines = allLines.concat(goEcho.goLines);
   echoApiFiles[apiFileName] = allLines;
-
-  api.resourceGroups.forEach(group => {
-    let groupGoTypeName = changeCase.pascalCase(group.title);
-    goLines.push(`  ${groupGoTypeName} *${groupGoTypeName}Group`);
-  });
-  goLines.push(`}`)
 });
 
 class GoFileWriter {

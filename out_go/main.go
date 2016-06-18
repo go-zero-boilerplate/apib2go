@@ -23,28 +23,28 @@ func (t *tmpLogger) WithField(key string, value interface{}) Logger {
 type postResource struct{}
 
 func (p *postResource) RetrieveAPost(postId string) (*RetrieveAPostResult, error) {
-	return &RetrieveAPostResult{Id: "123"}, nil
+	return NewRetrieveAPostResult("123", "", "", "", false, nil, "", 0, 0, 0, false, false), nil
 }
 func (p *postResource) DeleteAPost(postId string) (*DeleteAPostResult, error) {
-	return &DeleteAPostResult{}, nil
+	return NewDeleteAPostResult(), nil
 }
 
 type postsCollectionResource struct{}
 
 func (p *postsCollectionResource) CreateAPost(postData *CreateAPostInput) (*CreateAPostResult, error) {
-	return &CreateAPostResult{Id: postData.Id}, nil
+	return NewCreateAPostResult(postData.Id, "", "", "", false, nil, "", 0, 0, 0, false, false), nil
 }
 func (p *postsCollectionResource) RetrieveAllPosts() (*RetrieveAllPostsResult, error) {
-	return &RetrieveAllPostsResult{Data: "456"}, nil
+	return NewRetrieveAllPostsResult("data-456", nil), nil
 }
 
 type starsResource struct{}
 
 func (s *starsResource) StarAPost(postId int64) (*StarAPostResult, error) {
-	return &StarAPostResult{Id: "678"}, nil
+	return NewStarAPostResult("678", "", "", "", false, nil, "", 0, 0, 0, false, false), nil
 }
 func (s *starsResource) UnstarAPost(postId int64) (*UnstarAPostResult, error) {
-	return &UnstarAPostResult{Id: "890"}, nil
+	return NewUnstarAPostResult("890", "", "", "", false, nil, "", 0, 0, 0, false, false), nil
 }
 
 func main() {

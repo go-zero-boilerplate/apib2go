@@ -30,6 +30,44 @@ class Helpers {
     }
     return goLines;
   }
+  
+  getGoStructInitFieldsFromMap(map) {
+    let goLines = [];
+    for (var key in map) {
+      let fieldName = changeCase.pascalCase(key);
+      let paramName = changeCase.camelCase(key);
+      let fieldValue = map[key];
+      let fieldType = typeof fieldValue;
+      let goFieldType = this.goFieldTypeFromJsType(fieldType);
+
+      goLines.push(`${fieldName}: ${paramName},`);
+    }
+    return goLines;
+  }
+
+  getGoStructMethodParamsFromMap(map) {
+    let params = [];
+    for (var key in map) {
+      let paramName = changeCase.camelCase(key);
+      let fieldValue = map[key];
+      let fieldType = typeof fieldValue;
+      let goFieldType = this.goFieldTypeFromJsType(fieldType);
+      params.push(`${paramName} ${goFieldType}`);
+    }
+    return params;
+  }
+
+  getGoNewMethodForStructFromMap(map, structName) {
+    let goLines = [];
+    let methodParams = this.getGoStructMethodParamsFromMap(map);
+    goLines.push(`func New${structName}(${methodParams.join(', ')}) *${structName} {`);
+    goLines.push(`  return &${structName} {`)
+    let tmpGoLines2 = this.getGoStructInitFieldsFromMap(map);
+    goLines = goLines.concat(tmpGoLines2);
+    goLines.push(`  }`)
+    goLines.push(`}`);
+    return goLines;
+  }
 } 
 
 module.exports = {

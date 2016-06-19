@@ -3,6 +3,9 @@
   "version": "0.0.2",
   "description": "Convert API Blueprint to golang routers",
   "main": "index.js",
+  "bin": {
+    "apib2go": "apib2go"
+  },
   "files": [
     "generators"
   ],

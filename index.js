@@ -147,7 +147,7 @@ class GoFileWriter {
     let combinedPath = path.join(this.baseDir, relPath);
     fs.writeFileSync(combinedPath, content);
     console.log(`\nWritten file ${combinedPath}`);
-    console.log('Output of go fmt: ' + child_process.execFileSync('go', ['fmt', combinedPath]).toString());
+    console.log('Output of goreturns: ' + child_process.execFileSync('goreturns', ['-i', '-w', combinedPath]).toString());
   }
 }
 

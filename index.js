@@ -1,5 +1,8 @@
 'use strict';
 
+var docopt = require('docopt').docopt;
+var process = require('process');
+
 var accumulatorClass = require('./accumulator');
 
 var path = require('path');
@@ -11,8 +14,18 @@ var util = require("util");
 var helpers = require('./helpers').helpers;
 var GoEchoV2Api = require('./goEchoV2Api');
 
-var examplePath = "example.apib";
-var fileContent = fs.readFileSync(examplePath);
+let doc = `
+Usage:
+  apib2go <input_file> <output_dir>
+  apib2go -h | --help | --version 
+`
+
+var docoptArgs = docopt(doc, {version: '0.0.2'});
+var inputFile = docoptArgs['<input_file>'];
+var outDir = docoptArgs['<output_dir>'];
+var goPackageName = path.basename(outDir);
+
+var fileContent = fs.readFileSync(inputFile);
 var json = protagonist.parseSync(fileContent.toString());
 
 var accumulator = new accumulatorClass();
@@ -22,8 +35,6 @@ if (json.element !== 'parseResult') {
 }
 
 accumulator.handleNode(json);
-
-var goPackageName = 'main';
 
 var goLines = [
   `package ${goPackageName}`,
@@ -151,7 +162,7 @@ class GoFileWriter {
   }
 }
 
-var baseDir = 'out_go';
+var baseDir = outDir;
 var goFileWriter = new GoFileWriter(baseDir);
 
 for (var fileName in echoApiFiles) {

@@ -2,6 +2,7 @@
 
 var docopt = require('docopt').docopt;
 var process = require('process');
+var packageJson = require('./package.json');
 
 var accumulatorClass = require('./accumulator');
 
@@ -20,7 +21,7 @@ Usage:
   apib2go -h | --help | --version 
 `
 
-var docoptArgs = docopt(doc, {version: '0.0.2'});
+var docoptArgs = docopt(doc, {version: packageJson.version});
 var inputFile = docoptArgs['<input_file>'];
 var outDir = docoptArgs['<output_dir>'];
 var goPackageName = path.basename(outDir);

@@ -1,5 +1,5 @@
 {
-  "name": "apib-to-go",
+  "name": "apib2go",
   "version": "0.0.1",
   "description": "Convert API Blueprint to golang routers",
   "main": "index.js",
